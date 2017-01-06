@@ -2,9 +2,7 @@
 
 1、clone此工程到本地，打开命令行
 
-2、输入命令：mvn clean 
-
-3、mvn jetty:run
+2、输入命令：mvn jetty:run
 
 
 jetty开启后，在浏览器地址栏输入localhost:8080   即可开始运行
