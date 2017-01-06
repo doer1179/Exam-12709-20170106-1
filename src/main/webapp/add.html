@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Film</title>
+    <link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style>
+    .BodyDiv{
+        width: 25%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+</style>
+<body>
+
+<div class="BodyDiv">
+
+    <div class="form-group">
+        <label for="title">电影名称</label>
+        <input type="text" class="form-control" id="title" placeholder="请输入电影名称" >
+    </div>
+    <div class="form-group">
+        <label for="description">电影描述</label>
+        <input type="text" class="form-control" id="description" placeholder="请输入电影描述" >
+    </div>
+    <div class="form-group" >
+        <label for="language">语言</label>
+        <select  id="language" class="form-control" >
+            <!--<option value="10000">请选择电影语言</option>-->
+
+        </select>
+
+    </div>
+
+    <div style="margin-bottom: 100px">
+        <button id="Add" class="btn btn-success" style="width: 50%;margin-right:5%">添加</button>
+    </div>
+
+    <button id="back" class="btn btn-danger" style="width: 100%">返回主页</button>
+    <div><p id="message" class="text-danger"></p><br>
+
+    </div>
+    <script>
+        function getLanguage() {
+            $.ajax({
+                url: "/language/list",
+                type: "GET",
+                dataType:"json",
+                success:function (data) {
+                    for( i of data){
+                        $("#language").append("<option value='"+i.languageId+"'>"+i.name+"</option>");
+                    }
+                }
+            })
+        }
+        
+        
+        $('document').ready(function () {
+            getLanguage();
+            $('#back').click(function () {
+                window.location="index.html";
+            });
+            $('#Add').click(function () {
+                Add({
+                    title: $('#title').val(),
+                    description: $('#description').val(),
+                    languageId: $('#language option:selected').val(),
+                });
+            });
+
+        });
+        function Add(film) {
+
+          $.ajax({
+                url: "/film/addFilm",
+                type: "GET",
+                dataType:"json",
+                data: film,
+                success: function (data) {
+                    $('#message').text(data);
+                }
+            })
+
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Film</title>
+    <link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style>
+    .loginDiv{
+        width: 40%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+</style>
+<body>
+
+<div  class="loginDiv">
+
+    <div class="form-group">
+        <h3 for="firstName" style="text-align: center">名字(first_name)</h3>
+        <input type="text" class="form-control" name="name" data-bv-notempty data-bv-notempty-message="名字不能为空"  id="firstName" placeholder="请输入名字" >
+    </div>
+
+    <button id="login" class="btn btn-primary btn-lg btn-block">登录</button>
+
+    <h3>示例登录名：MARIA(仅供老师阅卷方便...)</h3>
+
+    <div><h4 style="color:RED;" id="message"></h4><br>
+
+    </div>
+    <script>
+        $('document').ready(function () {
+
+            $('#login').click(function () {
+                login({
+                    firstName: $('#firstName').val()
+                });
+            });
+        });
+        function login(firstName) {
+
+            $.ajax({
+                url: "/login/loginConfirm",
+                type: "GET",
+                dataType:"json",
+                data: firstName,
+                success: function (data) {
+                    if(data=="success"){
+                        $('#message').text("用户名正确，登录成功！");
+                        window.location="index.html";
+                    }else if(data=="error"){
+                        $('#message').text("登录失败！请输入正确的用户名！");
+                    }
+                }
+            })
+
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

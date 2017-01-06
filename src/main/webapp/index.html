@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+    <div class="form-group col-sm-6">
+        <label for="title" class="col-sm-2 control-label">电影名称</label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" id="title" placeholder="请输入电影名称">
+        </div>
+        <button id="query" class="btn btn-primary">查询</button>
+    </div>
+    <button id="add" class="btn btn-warning">新增电影</button>
+    <div>
+        <table id="filmTable" class="table table-striped">
+            <thead>
+            <tr>
+                <th>FilmID</th>
+                <th>电影名称</th>
+                <th>电影描述</th>
+                <th>语言</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <ul id="pagination" class="pagination pagination-lg col-sm-5" style="margin:0">
+            <li><a href="#">&lt;&lt;</a></li>
+            <li><a href="#">&gt;&gt;</a></li>
+        </ul>
+        <span id="pageCount" class="text-primary"></span>
+
+        <div class="col-sm-1">
+            <select id="pageSize"  class="form-control">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+        </div>
+        <div class="col-sm-1">
+            <input id="page" type="number" class="form-control" min="1">
+        </div>
+        <button id="go" class="btn btn-success">跳转</button>
+
+
+    </div>
+
+    <script id="rowTemplate" type="application/html">
+        <tr>
+            <td></td><td></td><td></td><td></td><td></td>
+        </tr>
+    </script>
+
+    <script>
+        $('document').ready(function () {
+            /*添加电影方法*/
+            $('#add').click(function () {
+                window.location="add.html";
+            });
+
+            /*查询方法&分页*/
+            //进入页面时的初始状态
+            window.page = {
+                page: 1,
+                pageSize: Number($('#pageSize').val()),
+                total: 0,
+                totalPage: 0
+            };
+            //初始化页面
+            query(page);
+            //定义查询点击事件，并且给参数赋值
+            $('#query').click(function () {
+                query({
+                    title:$('#title').val()
+                });
+            });
+            //定义回到第一页的方法
+            $('#pagination').children('li:first').click(function() {
+                window.page.page = 1;
+                query(window.page);
+            });
+            //定义到最后一页的方法
+            $('#pagination').children('li:last').click(function() {
+                window.page.page = window.page.totalPage;
+                query(window.page);
+            });
+            //当选择每页条数的select改变时，重新查询，并且回到第一页
+            $('#pageSize').change(function() {
+                window.page.page = 1;
+                window.page.pageSize = Number($('#pageSize').val());
+                query(window.page);
+            });
+            //点击跳转时，获取页码输入框中被输入的页数，带入query方法查询
+            $('#go').click(function() {
+                window.page.page = Number($('#page').val());
+                query(window.page);
+            });
+        });
+        //给query函数赋值方法，并计算得出总共页数
+        function resetPage(page) {
+            window.page.total = page.total;
+            window.page.page = page.page;
+            window.page.pageSize = page.pageSize;
+            window.page.totalPage  = Math.ceil(page.total/window.page.pageSize);
+            var pageCount=window.page.totalPage;
+            $('#pageCount').text("共有"+pageCount+"页");
+        }
+        //刷新分页按钮
+        function refreshPagination() {
+            $('#pagination').children('li.page').remove();
+            var pages = [];
+            //根据获取到的query的各项参数来判断当前页及在分页列表中显示的页码
+            if (window.page.totalPage - window.page.page < 2) {
+                pages = range(Math.max(1,window.page.totalPage-4),window.page.totalPage)
+            } else if (window.page.page -1 < 2) {
+                pages = range(1, Math.min(window.page.totalPage,5))
+            } else {
+                pages =  range(Number(window.page.page)-2,Number(window.page.page)+2);
+            }
+            var template = "<li class='page'><a href='#'></a></li>"
+            for (var item of pages) {
+
+                var $first = $("#pagination").children('li:last');
+                //被选中时点击无事件
+                var $template = $(template);
+                $template.children('a').text(item);
+                //被选中状态
+                if (item == window.page.page) {
+                    $template.addClass('active');
+                }
+                $first.before($template);
+            }
+            //第一页和最后一页按钮初始化，可点击
+            $("#pagination").children('li:first').removeClass('disabled');
+            $('#pagination').children('li:last').removeClass('disabled');
+            //当前页码为1时，第一页按钮不可点击
+            if (window.page.page == 1) {
+                $("#pagination").children('li:first').addClass('disabled');
+            }
+            //当前页码为最后时，最后一页按钮不可点击
+            if (window.page.page == page.totalPage) {
+                $("#pagination").children('li:last').addClass('disabled');
+            }
+            //其他页码点击跳转
+            $("#pagination li.page").click(function(event) {
+                console.log(event);
+                //获取点击的DOM的内容
+                window.page.page = Number($(event.target).text());
+                query(window.page)
+            });
+        };
+        //获得存有页码的数组
+        function range(min,max) {
+            var arr = [];
+            for (var i=min ;i <= max; i++) {
+                arr.push(i);
+            }
+            return arr;
+        }
+        //查询方法
+        function query(filmInfo) {
+            filmInfo.title = $('#title').val();
+            var defaultArg = {
+                title: "",
+                page: 1,
+                pageSize: 10
+            };
+            filmInfo = $.extend({}, defaultArg, filmInfo);
+            $.ajax({
+                url: "/film/listFilms",
+                type: "get",
+                dataType: "json",
+                data:filmInfo,
+                success: function (data) {
+                    filmInfo.total = data.total;
+                    resetPage(filmInfo);
+                    $('#filmTable tbody').empty();
+                    for (var item of data.rows) {
+                        var $templates = $($('#rowTemplate').html()).clone();
+                        $templates.children('td').eq(0).text(item.filmId);
+                        $templates.children('td').eq(1).text(item.title);
+                        $templates.children('td').eq(2).text(item.description);
+                        $templates.children('td').eq(3).text(item.languageName);
+                        var delBtn = $("<a href='javascript:del(" + item.filmId + ")'>删除&nbsp;</a>");
+                        var updateBtn = $("<a href='javascript:update(" + item.filmId + ")'>&nbsp;修改</a>");
+                        $templates.children('td').eq(4).append(delBtn, updateBtn);
+                        $('#filmTable').append($templates);
+                        $('#page').val(filmInfo.page);
+                        refreshPagination();
+                    }
+                }
+            })
+        }
+        /*修改方法*/
+        function update(filmId) {
+            window.location="updateFilm.html?filmId="+filmId;
+        }
+        /*删除方法*/
+        function del(filmId) {
+            var delConfirm=confirm("是否删除这条记录？");
+            if (delConfirm==true){
+                $.ajax({
+                    url:"/film/delete",
+                    type:"GET",
+                    dataType:"json",
+                    data:{"filmId":filmId},
+                    success:function (data) {
+                        alert(data);
+                        window.location.reload();
+                    }
+                })
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

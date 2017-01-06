@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wyc.mapper.FilmMapper">
+
+    <resultMap id="film" type="Film">
+    <id property="filmId" column="film_id"></id>
+    <result property="title" column="title"></result>
+    <result property="description" column="description"></result>
+    <result property="languageId" column="language_id"></result>
+    <result property="languageName" column="languageName"></result>
+    </resultMap>
+
+    <select id="getAllFilms" parameterType="Page" resultMap="film">
+
+        SELECT film_id,title,description,`language`.name languageName from `film` ,`language`
+         WHERE film.language_id=`language`.language_id   AND
+        1=1
+        <if test="entity.title !=null">
+        AND title LIKE CONCAT('%',CONCAT(#{entity.title}, '%'))
+        </if>
+        ORDER BY film_id
+        LIMIT #{offset},#{pageSize}
+    </select>
+
+    <select id="selectCount" parameterType="Film" resultType="int">
+    SELECT COUNT(1)
+    FROM `film`
+    WHERE
+    1=1
+    <if test="title !=null">
+        AND title LIKE CONCAT('%', CONCAT(#{title}, '%'))
+    </if>
+    </select>
+
+    <select id="getFilmById" resultMap="film">
+        SELECT film_id,title,description,language_id from film where film_id=#{filmId}
+    </select>
+
+    <insert id="add" parameterType="Film" useGeneratedKeys="true">
+        INSERT INTO `film`
+        (title,description,language_id)
+        VALUES(#{title},#{description},#{languageId})
+    </insert>
+    <update id="update" parameterType="Film">
+         UPDATE film SET title=#{title},description=#{description},language_id=#{languageId}
+         WHERE film_id=#{filmId};
+    </update>
+
+    <delete id="delete" >
+        DELETE FROM film WHERE film_id=#{filmId}
+    </delete>
+
+</mapper>

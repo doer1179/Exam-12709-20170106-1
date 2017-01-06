@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Film</title>
+    <link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<style>
+        .BodyDiv{
+            width: 25%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+</style>
+<body onload="onload()">
+
+<div class="BodyDiv">
+
+    <div class="form-group">
+        <label for="filmId">电影ID</label>
+        <input type="text" class="form-control" id="filmId"  disabled>
+    </div>
+
+    <div class="form-group">
+        <label for="title">电影名称</label>
+        <input type="text" class="form-control" id="title"  placeholder="请输入电影名称" >
+    </div>
+    <div class="form-group">
+        <label for="description">电影描述</label>
+        <input type="text" class="form-control" id="description" placeholder="请输入电影描述" >
+    </div>
+    <div class="form-group">
+        <label for="language">语言</label>
+        <select  id="language" class="form-control" >
+
+
+        </select>
+
+    </div>
+
+
+    <div style="margin-bottom: 100px">
+        <button id="submit" class="btn btn-success" style="width: 50%;margin-right:5%">提交</button>
+        <div><p id="message" class="text-danger"></p><br>
+    </div>
+
+    <button id="back" class="btn btn-danger" style="width: 100%">返回主页</button>
+
+    </div>
+    <script>
+        /*初始化，获取原始信息*/
+        function onload() {
+            getLanguage();
+            var href=window.location.href;
+            var s = href.split("=");
+            var filmId=s[1];
+            $('#filmId').val(filmId),
+            $.ajax({
+                url:"/film/getFilmById",
+                type:"GET",
+                dataType:"json",
+                data:{"filmId":filmId},
+                success:function (data) {
+                    $('#title').val(data.title);
+                    $('#description').val(data.description);
+                    $('#language').val(data.languageId);
+                }
+            })
+        }
+        function getLanguage() {
+            $.ajax({
+                url: "/language/list",
+                type: "GET",
+                dataType:"json",
+                success:function (data) {
+                    for( i of data){
+                        $("#language").append("<option  value='"+i.languageId+"'>"+i.name+"</option>");
+                    }
+                }
+            })
+        }
+        $('document').ready(function () {
+            $('#back').click(function () {
+                window.location="index.html";
+            });
+            $('#submit').click(function () {
+                update({
+                    filmId:$('#filmId').val(),
+                    title: $('#title').val(),
+                    description: $('#description').val(),
+                    languageId: $('#language option:selected').val(),
+                });
+            });
+        });
+        function update(film) {
+
+            $.ajax({
+                url: "/film/updateFilm",
+                type: "GET",
+                dataType:"json",
+                data: film,
+                success: function (data) {
+                    $('#message').text(data);
+                }
+            })
+        }
+    </script>
+
+</div>
+
+</body>
+</html>

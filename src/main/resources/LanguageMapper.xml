@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wyc.mapper.LanguageMapper">
+
+    <resultMap id="language" type="Language">
+    <id property="languageId" column="language_id"></id>
+    <result property="name" column="name"></result>
+    </resultMap>
+
+    <select id="getLanguage"  resultType="com.wyc.pojo.Language">
+        SELECT language_id as languageId ,name FROM language
+    </select>
+
+</mapper>
